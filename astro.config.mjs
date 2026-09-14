@@ -1,6 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
-import cloudflare from '@astrojs/cloudflare';
+import netlify from '@astrojs/netlify';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react';
 import mdx from '@astrojs/mdx';
@@ -24,7 +24,7 @@ export default defineConfig({
   site: CONFIG.site.url,
   output: 'server',
 
-  adapter: cloudflare(),
+  adapter: netlify(),
 
   vite: {
     plugins: [tailwindcss()],

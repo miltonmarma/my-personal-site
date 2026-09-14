@@ -1,0 +1,10 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22.12.0"
+
+# The @astrojs/netlify adapter handles SSR routes via Netlify Functions
+# and emits prerendered pages into `dist`. No extra redirects are needed;
+# the adapter writes its own config into the build output.

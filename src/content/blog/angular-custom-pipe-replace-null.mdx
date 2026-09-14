@@ -1,0 +1,144 @@
+---
+title: "Create Custom Pipe in Angular to Replace Null Value With a Text"
+publishedAt: "2020-10-06"
+updatedAt: "2022-12-15"
+author: "Uaungchain Marma Milton"
+summary: "A basic overview of pipes in Angular and a step-by-step guide to creating your own custom pipe, one that replaces a null or undefined value with a given text in the template."
+canonicalUrl: "https://medium.com/javascript-in-plain-english/create-custom-pipe-in-angular-to-replace-null-value-with-a-text-376b58b15b61"
+---
+
+Basic pipe overview and a step by step process to create a custom pipe in Angular.
+
+## A Little Bit Of Background
+
+A Pipe in Angular is a way to transform data in the HTML template. It doesn't change the value of the data in the TypeScript file. A pipe takes in data as input and transforms it into the desired output. A good use case of pipes is in transforming date format. Generally, the date-time format we get from the API data is not the format that we want to show the users. That's when we can use pipes to transform the data into the desired format.
+
+![Photo by Oskar Yildiz on Unsplash](https://miro.medium.com/v2/resize:fit:700/0*1bRfAeWhhc9-2YB-)
+
+*Photo by Oskar Yildiz on Unsplash*
+
+## Built-in Pipes
+
+Angular provides built-in pipes for typical data transformations e.g. `DatePipe`, `UpperCasePipe`, `LowerCasePipe`, etc. so that we can transform our data into the desired format in the HTML template. Now, let's see some examples with `DatePipe`.
+
+In the below code (a slightly modified version of the official example), we are using the date pipe. We have to place the pipe after a vertical line (`|`) in the template expression.
+
+A pipe can accept optional parameters to modify the output. To pass parameters to a pipe, simply add a colon and the parameter value to the end of the pipe expression. In the below code, we are passing `'shortTime'` and `'medium'` as parameters for the date pipe.
+
+```ts
+@Component({
+  selector: 'app-pipe-practice',
+  template: `
+    <div>
+      <p>Today is {{currentDate | date}}</p>
+      <p>Or if you prefer, {{currentDate | date:'MM/dd/yyyy'}}</p>
+      <p>The time is {{currentDate | date:'shortTime'}}</p>
+      <p>Date from time stamp is {{ timeStamp | date:'medium'}}
+    <div>
+  `,
+})
+export class PipePracticeComponent {
+  currentDate: number = Date.now();
+  timeStamp: string = '2020-09-25T08:11:19+00:00';
+}
+```
+
+We will get the below output in the browser.
+
+```text
+Today is Sep 25, 2020
+Or if you prefer, 09/25/2020
+The time is 2:16 PM
+Date from time stamp is Sep 25, 2020, 2:11:19 PM
+```
+
+## Motivation for Our Custom Pipe
+
+We all love to give users the best user experience possible. So, if a value is null, users won't see anything in the browser. Not a good user experience. We will solve that problem by creating our own custom pipe that will replace the null or undefined value with a given text in the template expression.
+
+## Let's Create Our Custom Pipe
+
+We will use the Angular CLI to create our own custom pipe using the below command.
+
+```bash
+ng generate pipe replace-null-with-text
+```
+
+The Angular CLI will generate a skeleton file for our custom pipe.
+
+```ts
+@Pipe({
+  name: 'replaceNullWithText'
+})
+export class ReplaceNullWithTextPipe implements PipeTransform {
+
+  transform(value: any, args?: any): any {
+    return null;
+  }
+
+}
+```
+
+The name specified in the `@Pipe` decorator is the name of the pipe (e.g. `replaceNullWithText`). We will use that name in HTML like the date pipe example.
+
+In the transform method, the `value` parameter is the value we get from the HTML template, and `args` is the optional parameter we want to send to our custom pipe. Note that you don't have to use the same parameter name, but remember that parameter position matters. The first parameter will always get the value from the HTML template, and at least one parameter is mandatory.
+
+If you are creating the pipe inside an Angular module like `SharedModule`, then don't forget to export it from the `module.ts` file, otherwise you won't be able to use it in the other modules. Or if you are not using the Angular CLI to generate the skeleton file, then you have to add the custom pipe class name in the module declarations too.
+
+For our custom pipe, we want it to return a text value that we will pass from the template expression as a parameter when the value from the HTML template is null. So, in the below code we are checking if the value from the HTML template is null or undefined. If the value is null/undefined then we are returning the `repleceText` parameter value, otherwise we are returning the same value.
+
+```ts
+@Pipe({
+  name: 'replaceNullWithText'
+})
+export class ReplaceNullWithTextPipe implements PipeTransform {
+
+  transform(value: any, repleceText: string = 'N/A'): any {
+    if (typeof value === 'undefined' || value === null) {
+      return repleceText;
+    }
+
+    return value;
+  }
+
+}
+```
+
+We also added a default value `'N/A'` for `repleceText`. So, if we don't pass any parameter from our HTML template, then for a null/undefined value our custom pipe will return `'N/A'`.
+
+Now let's see our custom pipe in action. 😃
+
+```ts
+@Component({
+  selector: 'app-custom-pipe-practice',
+  template: `
+    <div>
+      <p>Book Name : {{ book | replaceNullWithText:'Book Name Not Available'}}</p>
+      <p>Author Name : {{ author | replaceNullWithText: 'Author Name Not Available'}}</p>
+      <p>Published at : {{ publishedAt | replaceNullWithText: 'Published Date Not Available'}}</p>
+      <p>Price: {{ price | replaceNullWithText }}
+    <div>
+  `,
+})
+export class CustomPipePracticeComponent {
+  book = 'Awesome Book';
+  author = null;
+  publishedAt = null;
+  price = null;
+}
+```
+
+We will get the following output in our browser.
+
+```text
+Book Name : Awesome Book
+Author Name : Author Name Not Available
+Published at : Published Date Not Available
+Price: N/A
+```
+
+The `book` variable is not null, so our custom pipe won't change the value and we won't see any kind of transformation of the book value in the output. But as our `author` and `publishedAt` values are null, our custom pipe returns the replace text value which we passed from the HTML template as a parameter, and for `price` we didn't pass any parameter value to replace the null, so our custom pipe returns the default replace text value, which is `'N/A'`.
+
+Yeah! 😃 We got our custom pipe in Angular.
+
+*I am also learning Angular almost every day. So, if I made any mistake please feel free to correct me and put your suggestions in the comment section.*

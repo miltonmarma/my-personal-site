@@ -124,16 +124,24 @@
     @apply bg-background text-foreground;
   }
 
-  /* Shiki dual theme support */
-  .shiki,
-  .shiki span {
-    color: var(--shiki-light);
+  /* Shiki dual theme support. rehype-pretty-code (dual theme) emits
+     data-theme on the pre/code and per-token --shiki-light / --shiki-dark
+     custom properties, so map those variables to color here. */
+  pre[data-theme],
+  pre[data-theme] span,
+  code[data-theme],
+  code[data-theme] span {
+    /* Fallback = theme default fg, so plaintext ("text") blocks whose tokens
+       carry no --shiki-light variable don't inherit the faded prose color. */
+    color: var(--shiki-light, #24292e);
     background-color: transparent;
   }
 
-  .dark .shiki,
-  .dark .shiki span {
-    color: var(--shiki-dark);
+  .dark pre[data-theme],
+  .dark pre[data-theme] span,
+  .dark code[data-theme],
+  .dark code[data-theme] span {
+    color: var(--shiki-dark, #e1e4e8);
     background-color: transparent;
   }
 
@@ -141,7 +149,9 @@
     @apply leading-relaxed bg-transparent! font-mono!;
   }
 
-  .prose code {
+  /* Inline code only (:not([data-theme]) excludes highlighted code blocks,
+     so Shiki token colors are not flattened by the pill styling). */
+  .prose code:not([data-theme]) {
     @apply m-0! mx-1! border rounded-md! px-1.5 py-0.5 bg-muted/60 dark:bg-muted/40 text-[13px]! font-mono text-foreground/90!;
   }
 
